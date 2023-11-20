@@ -1,0 +1,238 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <stack>
+#include <ctime>
+#include <iomanip> // Include the <iomanip> header for setw
+using namespace std;
+
+
+class Account {
+    long long int acno;
+    char name[50];
+    long long int adhar;
+    long long int mobile;
+    int deposit;
+    char type;
+
+public:
+    void create_account();
+    void show_account() const;
+    void modify();
+    void dep(int);
+    void draw(int);
+    void report() const;
+    int retacno() const;
+    int retdeposit() const;
+    char rettype() const;
+};
+
+class Bank {
+private:
+    struct Node {
+        Account user;
+        Node* next;
+    };
+
+    Node* head;
+
+public:
+    Bank() {
+        head = nullptr;
+    }
+
+    void create_account();
+    void search_account(int);
+    void deposit_account(int);
+    void withdraw_account(int);
+    void display_all() const;
+};
+
+void Bank::create_account() {
+    Node* newNode = new Node;
+    newNode->user.create_account();
+    newNode->next = head;
+    head = newNode;
+}
+
+void Bank::search_account(int accountNumber) {
+    Node* current = head;
+    while (current != nullptr) {
+        if (current->user.retacno() == accountNumber) {
+            current->user.show_account();
+            return;
+        }
+        current = current->next;
+    }
+    cout << "Account not found." << endl;
+}
+
+void Bank::deposit_account(int accountNumber) {
+    Node* current = head;
+    while (current != nullptr) {
+        if (current->user.retacno() == accountNumber) {
+            int amount;
+            cout << "Enter the amount you want to deposit: ";
+            cin >> amount;
+            current->user.dep(amount);
+            cout << "Deposit successful." << endl;
+            return;
+        }
+        current = current->next;
+    }
+    cout << "Account not found." << endl;
+}
+
+void Bank::withdraw_account(int accountNumber) {
+    Node* current = head;
+    while (current != nullptr) {
+        if (current->user.retacno() == accountNumber) {
+            int amount;
+            cout << "Enter the amount you want to withdraw: ";
+            cin >> amount;
+            if (amount > current->user.retdeposit()) {
+                cout << "Insufficient balance for withdrawal." << endl;
+            } else {
+                current->user.draw(amount);
+                cout << "Withdrawal successful." << endl;
+            }
+            return;
+        }
+        current = current->next;
+    }
+    cout << "Account not found." << endl;
+}
+
+void Bank::display_all() const {
+    Node* current = head;
+    while (current != nullptr) {
+        current->user.report();
+        current = current->next;
+    }
+}
+
+int Account::retacno() const {
+    return acno;
+}
+
+int Account::retdeposit() const {
+    return deposit;
+}
+
+char Account::rettype() const {
+    return type;
+}
+
+void Account::create_account() {
+    cout << "\nEnter The account No. : ";
+    cin >> acno;
+    cout << "\n\nEnter The Name of The account Holder : ";
+    cin.ignore();
+    cin.getline(name, 50);
+    cout << "\n\nEnter aadhar card no : ";
+    cin >> adhar;
+    cout << "\n\nEnter mobile number : ";
+    cin >> mobile;
+    cout << "\nEnter Type of The account (C/S) : ";
+    cin >> type;
+    type = toupper(type);
+    cout << "\nEnter The Initial amount (>=500 for Saving and >=1000 for current): ";
+    cin >> deposit;
+    cout << "\n\n\nAccount Created.." << endl;
+}
+
+void Account::show_account() const {
+    cout << "\nAccount No. : " << acno;
+    cout << "\nAccount Holder Name : " << name;
+    cout << "\nAadhar number : " << adhar;
+    cout << "\nMobile number : " << mobile;
+    cout << "\nBalance amount : " << deposit << endl;
+}
+
+void Account::modify() {
+    cout << "\nAccount No. : " << acno;
+    cout << "\nModify Account Holder Name : ";
+    cin.ignore();
+    cin.getline(name, 50);
+    cout << "\nModify Aadhar number : ";
+    cin >> adhar;
+    cout << "\nModify Mobile number : ";
+    cin >> mobile;
+    cout << "\nModify Type of Account : ";
+    cin >> type;
+    type = toupper(type);
+    cout << "\nModify Balance amount : ";
+    cin >> deposit;
+}
+
+void Account::dep(int x) {
+    deposit += x;
+}
+
+void Account::draw(int x) {
+    deposit -= x;
+}
+
+void Account::report() const {
+    cout << acno << setw(10) << " " << name << setw(10) << " " << adhar << setw(10) << " " << mobile << setw(10) << " " << type << setw(6) << " " << deposit << endl;
+}
+
+void time() {
+    time_t now = time(0);
+    char* dt = ctime(&now);
+    cout << "\t\t\t\t\t\t\t\t\t\t" << dt << endl;
+}
+
+int main() {
+    Bank bank;
+    cout << "MY PROJECT ONLINE BANKING TRANSACTION" << endl << endl;
+    int choice;
+
+    do {
+        cout << "Press 1: TO CREATE A NEW ACCOUNT" << endl;
+        cout << "Press 2: TO SEARCH YOUR ACCOUNT DETAILS" << endl;
+        cout << "Press 3: TO DEPOSIT MONEY" << endl;
+        cout << "Press 4: TO WITHDRAW MONEY" << endl;
+        cout << "Press 5: DISPLAY ALL ACCOUNTS" << endl;
+        cout << "Press 6: EXIT" << endl << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                bank.create_account();
+                break;
+            case 2: {
+                int accountNumber;
+                cout << "Enter account number to search: ";
+                cin >> accountNumber;
+                bank.search_account(accountNumber);
+                break;
+            }
+            case 3: {
+                int accountNumber;
+                cout << "Enter the account number where you want to deposit money: ";
+                cin >> accountNumber;
+                bank.deposit_account(accountNumber);
+                break;
+            }
+            case 4: {
+                int accountNumber;
+                cout << "Enter the account number from which you want to withdraw money: ";
+                cin >> accountNumber;
+                bank.withdraw_account(accountNumber);
+                break;
+            }
+            case 5:
+                bank.display_all();
+                break;
+            case 6:
+                cout << "Thank you for using our banking system. Goodbye!" << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 6);
+
+    return 0;
+}
